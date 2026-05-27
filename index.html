@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shonen AI Admin Panel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <div class="badge">Admin Panel</div>
+        <h1>Shonen AI Control Center</h1>
+        <p>
+          Secure admin dashboard for backend health, app version, APK updates,
+          premium users, feedback, and future admin controls.
+        </p>
+      </div>
+
+      <div class="auth-card" id="authCard">
+        <h2>Admin Login</h2>
+        <p>Login with your approved Google admin account.</p>
+        <button id="loginBtn" class="btn primary">Login with Google</button>
+      </div>
+
+      <div class="auth-card hidden" id="userCard">
+        <h2>Logged in</h2>
+        <p id="userEmail">Loading...</p>
+        <button id="logoutBtn" class="btn secondary">Logout</button>
+      </div>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <div class="top-row">
+        <div>
+          <p class="section-kicker">Dashboard</p>
+          <h2>Admin Overview</h2>
+        </div>
+
+        <button id="refreshBtn" class="btn secondary">Refresh</button>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <span class="card-label">Backend</span>
+          <h3 id="backendStatus">Not checked</h3>
+          <p id="backendMessage">Click refresh to check backend status.</p>
+        </div>
+
+        <div class="card">
+          <span class="card-label">Admin Access</span>
+          <h3 id="adminStatus">Not verified</h3>
+          <p id="adminMessage">Admin token verification pending.</p>
+        </div>
+
+        <div class="card">
+          <span class="card-label">App Version</span>
+          <h3 id="versionStatus">Not checked</h3>
+          <p id="versionMessage">Latest APK/version info will appear here.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Raw Admin Response</h3>
+        <pre id="rawOutput">No data yet.</pre>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
