@@ -119,32 +119,32 @@ async function refreshDashboard() {
       versionStatus.textContent = `v${versionData.latestVersion}`;
       versionMessage.textContent = `Build ${versionData.latestBuild} • Force update: ${versionData.forceUpdate}`;
 
-      latestVersionValue.textContent = `v${versionData.latestVersion}`;
-      latestBuildValue.textContent = versionData.latestBuild;
-      minBuildValue.textContent = versionData.minRequiredBuild;
-      forceUpdateValue.textContent = versionData.forceUpdate ? "ON" : "OFF";
+      document.getElementById("latestVersionValue").textContent = `v${versionData.latestVersion}`;
+      document.getElementById("latestBuildValue").textContent = versionData.latestBuild;
+      document.getElementById("minBuildValue").textContent = versionData.minRequiredBuild;
+      document.getElementById("forceUpdateValue").textContent = versionData.forceUpdate ? "ON" : "OFF";
 
-      forceUpdateValue.classList.remove("good", "warning", "danger");
-      forceUpdateValue.classList.add(versionData.forceUpdate ? "danger" : "good");
+      document.getElementById("forceUpdateValue").classList.remove("good", "warning", "danger");
+      document.getElementById("forceUpdateValue").classList.add(versionData.forceUpdate ? "danger" : "good");
 
-      apkLink.href = versionData.apkUrl || "#";
-      apkLink.textContent = versionData.apkUrl || "APK URL not available";
+      document.getElementById("apkLink").href = versionData.apkUrl || "#";
+      document.getElementById("apkLink").textContent = versionData.apkUrl || "APK URL not available";
 
-      websiteLink.href = versionData.websiteUrl || "#";
-      websiteLink.textContent = versionData.websiteUrl || "Website URL not available";
+      document.getElementById("websiteLink").href = versionData.websiteUrl || "#";
+      document.getElementById("websiteLink").textContent = versionData.websiteUrl || "Website URL not available";
 
-      changelogList.innerHTML = "";
+      document.getElementById("changelogList").innerHTML = "";
 
       if (Array.isArray(versionData.changelog) && versionData.changelog.length > 0) {
         versionData.changelog.forEach((item) => {
           const li = document.createElement("li");
           li.textContent = item;
-          changelogList.appendChild(li);
+          document.getElementById("changelogList").appendChild(li);
         });
       } else {
         const li = document.createElement("li");
         li.textContent = "No changelog available.";
-        changelogList.appendChild(li);
+        document.getElementById("changelogList").appendChild(li);
       }
     } else {
       versionStatus.textContent = "Error";
