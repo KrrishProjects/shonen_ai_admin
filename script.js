@@ -35,6 +35,13 @@ const adminStatus = document.getElementById("adminStatus");
 const adminMessage = document.getElementById("adminMessage");
 const versionStatus = document.getElementById("versionStatus");
 const versionMessage = document.getElementById("versionMessage");
+const latestVersionValue = document.getElementById("latestVersionValue");
+const latestBuildValue = document.getElementById("latestBuildValue");
+const minBuildValue = document.getElementById("minBuildValue");
+const forceUpdateValue = document.getElementById("forceUpdateValue");
+const apkLink = document.getElementById("apkLink");
+const websiteLink = document.getElementById("websiteLink");
+const changelogList = document.getElementById("changelogList");
 const rawOutput = document.getElementById("rawOutput");
 
 loginBtn.addEventListener("click", async () => {
@@ -111,6 +118,34 @@ async function refreshDashboard() {
     if (versionResponse.ok && versionData.success) {
       versionStatus.textContent = `v${versionData.latestVersion}`;
       versionMessage.textContent = `Build ${versionData.latestBuild} • Force update: ${versionData.forceUpdate}`;
+
+      latestVersionValue.textContent = `v${versionData.latestVersion}`;
+      latestBuildValue.textContent = versionData.latestBuild;
+      minBuildValue.textContent = versionData.minRequiredBuild;
+      forceUpdateValue.textContent = versionData.forceUpdate ? "ON" : "OFF";
+
+      forceUpdateValue.classList.remove("good", "warning", "danger");
+      forceUpdateValue.classList.add(versionData.forceUpdate ? "danger" : "good");
+
+      apkLink.href = versionData.apkUrl || "#";
+      apkLink.textContent = versionData.apkUrl || "APK URL not available";
+
+      websiteLink.href = versionData.websiteUrl || "#";
+      websiteLink.textContent = versionData.websiteUrl || "Website URL not available";
+
+      changelogList.innerHTML = "";
+
+      if (Array.isArray(versionData.changelog) && versionData.changelog.length > 0) {
+        versionData.changelog.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          changelogList.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "No changelog available.";
+        changelogList.appendChild(li);
+      }
     } else {
       versionStatus.textContent = "Error";
       versionMessage.textContent = "Could not load app version.";
