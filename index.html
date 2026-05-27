@@ -150,6 +150,55 @@
       </div>
 
       <div class="panel">
+        <h3>Premium Overview</h3>
+
+        <div class="version-grid">
+          <div class="version-card">
+            <span>Premium Users</span>
+            <strong id="premiumUsersValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Free Users</span>
+            <strong id="freeUsersValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Expired Premium</span>
+            <strong id="expiredPremiumValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Users Checked</span>
+            <strong id="usersCheckedValue">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Premium / Plan Users</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Premium Until</th>
+                <th>Payment ID</th>
+              </tr>
+            </thead>
+            <tbody id="premiumUsersTable">
+              <tr>
+                <td colspan="6">No premium data loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
         <h3>Raw Admin Response</h3>
         <pre id="rawOutput">No data yet.</pre>
       </div>

@@ -47,6 +47,11 @@ const activeUsersValue = document.getElementById("activeUsersValue");
 const verifiedUsersValue = document.getElementById("verifiedUsersValue");
 const disabledUsersValue = document.getElementById("disabledUsersValue");
 const recentUsersTable = document.getElementById("recentUsersTable");
+const premiumUsersValue = document.getElementById("premiumUsersValue");
+const freeUsersValue = document.getElementById("freeUsersValue");
+const expiredPremiumValue = document.getElementById("expiredPremiumValue");
+const usersCheckedValue = document.getElementById("usersCheckedValue");
+const premiumUsersTable = document.getElementById("premiumUsersTable");
 const rawOutput = document.getElementById("rawOutput");
 
 loginBtn.addEventListener("click", async () => {
@@ -197,11 +202,57 @@ async function refreshDashboard() {
       recentUsersTable.innerHTML = `<tr><td colspan="5">${usersData.error || "Could not load users."}</td></tr>`;
     }
 
+    const premiumResponse = await fetch(`${BACKEND_URL}/admin/premium-overview`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const premiumData = await premiumResponse.json();
+
+    if (premiumResponse.ok && premiumData.success) {
+      premiumUsersValue.textContent = premiumData.premiumUsers ?? "-";
+      freeUsersValue.textContent = premiumData.freeUsers ?? "-";
+      expiredPremiumValue.textContent = premiumData.expiredPremiumUsers ?? "-";
+      usersCheckedValue.textContent = premiumData.totalUsersChecked ?? "-";
+
+      premiumUsersTable.innerHTML = "";
+
+      if (Array.isArray(premiumData.users) && premiumData.users.length > 0) {
+        premiumData.users.forEach((user) => {
+          const tr = document.createElement("tr");
+
+          const planClass =
+            user.plan === "premium" && !user.isExpired ? "yes" : "no";
+
+          tr.innerHTML = `
+            <td>${user.email || "-"}</td>
+            <td>${user.displayName || "-"}</td>
+            <td><span class="pill ${planClass}">${user.plan || "free"}</span></td>
+            <td>${user.isExpired ? "Expired" : user.status || "-"}</td>
+            <td>${user.premiumUntil || "-"}</td>
+            <td>${user.lastPaymentId || "-"}</td>
+          `;
+
+          premiumUsersTable.appendChild(tr);
+        });
+      } else {
+        premiumUsersTable.innerHTML = `<tr><td colspan="6">No users found.</td></tr>`;
+      }
+    } else {
+      premiumUsersValue.textContent = "Error";
+      freeUsersValue.textContent = "-";
+      expiredPremiumValue.textContent = "-";
+      usersCheckedValue.textContent = "-";
+      premiumUsersTable.innerHTML = `<tr><td colspan="6">${premiumData.error || "Could not load premium users."}</td></tr>`;
+    }
+
     rawOutput.textContent = JSON.stringify(
       {
         admin: adminData,
         version: versionData,
         users: usersData,
+        premium: premiumData,
       },
       null,
       2
