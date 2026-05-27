@@ -102,6 +102,54 @@
       </div>
 
       <div class="panel">
+        <h3>Users Overview</h3>
+
+        <div class="version-grid">
+          <div class="version-card">
+            <span>Total Users</span>
+            <strong id="totalUsersValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Active Users</span>
+            <strong id="activeUsersValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Email Verified</span>
+            <strong id="verifiedUsersValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Disabled Users</span>
+            <strong id="disabledUsersValue">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Recent Users</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Verified</th>
+                <th>Disabled</th>
+                <th>Last Sign In</th>
+              </tr>
+            </thead>
+            <tbody id="recentUsersTable">
+              <tr>
+                <td colspan="5">No users loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
         <h3>Raw Admin Response</h3>
         <pre id="rawOutput">No data yet.</pre>
       </div>

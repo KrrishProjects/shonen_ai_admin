@@ -42,6 +42,11 @@ const forceUpdateValue = document.getElementById("forceUpdateValue");
 const apkLink = document.getElementById("apkLink");
 const websiteLink = document.getElementById("websiteLink");
 const changelogList = document.getElementById("changelogList");
+const totalUsersValue = document.getElementById("totalUsersValue");
+const activeUsersValue = document.getElementById("activeUsersValue");
+const verifiedUsersValue = document.getElementById("verifiedUsersValue");
+const disabledUsersValue = document.getElementById("disabledUsersValue");
+const recentUsersTable = document.getElementById("recentUsersTable");
 const rawOutput = document.getElementById("rawOutput");
 
 loginBtn.addEventListener("click", async () => {
@@ -151,10 +156,52 @@ async function refreshDashboard() {
       versionMessage.textContent = "Could not load app version.";
     }
 
+    const usersResponse = await fetch(`${BACKEND_URL}/admin/users-overview`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const usersData = await usersResponse.json();
+
+    if (usersResponse.ok && usersData.success) {
+      totalUsersValue.textContent = usersData.totalUsers ?? "-";
+      activeUsersValue.textContent = usersData.activeUsers ?? "-";
+      verifiedUsersValue.textContent = usersData.verifiedEmailUsers ?? "-";
+      disabledUsersValue.textContent = usersData.disabledUsers ?? "-";
+
+      recentUsersTable.innerHTML = "";
+
+      if (Array.isArray(usersData.recentUsers) && usersData.recentUsers.length > 0) {
+        usersData.recentUsers.forEach((user) => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${user.email || "-"}</td>
+            <td>${user.displayName || "-"}</td>
+            <td><span class="pill ${user.emailVerified ? "yes" : "no"}">${user.emailVerified ? "Yes" : "No"}</span></td>
+            <td><span class="pill ${user.disabled ? "no" : "yes"}">${user.disabled ? "Yes" : "No"}</span></td>
+            <td>${user.lastSignInAt || user.createdAt || "-"}</td>
+          `;
+
+          recentUsersTable.appendChild(tr);
+        });
+      } else {
+        recentUsersTable.innerHTML = `<tr><td colspan="5">No users found.</td></tr>`;
+      }
+    } else {
+      totalUsersValue.textContent = "Error";
+      activeUsersValue.textContent = "-";
+      verifiedUsersValue.textContent = "-";
+      disabledUsersValue.textContent = "-";
+      recentUsersTable.innerHTML = `<tr><td colspan="5">${usersData.error || "Could not load users."}</td></tr>`;
+    }
+
     rawOutput.textContent = JSON.stringify(
       {
         admin: adminData,
         version: versionData,
+        users: usersData,
       },
       null,
       2
