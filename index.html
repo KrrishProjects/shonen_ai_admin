@@ -304,6 +304,55 @@
         </div>
       </div>
 
+
+      <div class="panel">
+        <h3>AI Provider Monitor</h3>
+        <p class="muted">
+          Monitor Gemini/Groq provider configuration and fallback status.
+        </p>
+
+        <div class="version-grid">
+          <div class="version-card">
+            <span>Active Provider</span>
+            <strong id="aiProviderStatusValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Gemini</span>
+            <strong id="geminiStatusValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Groq</span>
+            <strong id="groqStatusValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Last Checked</span>
+            <strong id="aiLastCheckedValue">-</strong>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Status</th>
+                <th>Model</th>
+                <th>Configured</th>
+                <th>Skipped</th>
+              </tr>
+            </thead>
+            <tbody id="aiProvidersTable">
+              <tr>
+                <td colspan="5">No AI provider data loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="panel">
         <h3>Raw Admin Response</h3>
         <pre id="rawOutput">No data yet.</pre>

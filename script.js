@@ -62,6 +62,11 @@ const removePremiumNote = document.getElementById("removePremiumNote");
 const removePremiumBtn = document.getElementById("removePremiumBtn");
 const removePremiumStatus = document.getElementById("removePremiumStatus");
 const rawOutput = document.getElementById("rawOutput");
+const aiProviderStatusValue = document.getElementById("aiProviderStatusValue");
+const geminiStatusValue = document.getElementById("geminiStatusValue");
+const groqStatusValue = document.getElementById("groqStatusValue");
+const aiLastCheckedValue = document.getElementById("aiLastCheckedValue");
+const aiProvidersTable = document.getElementById("aiProvidersTable");
 const feedbackTotalValue = document.getElementById("feedbackTotalValue");
 const feedbackNewValue = document.getElementById("feedbackNewValue");
 const feedbackReviewedValue = document.getElementById("feedbackReviewedValue");
@@ -551,12 +556,72 @@ async function refreshDashboard() {
     window.updateFeedbackStatus = updateFeedbackStatus;
     window.archiveFeedback = archiveFeedback;
 
+
+    const aiMonitorResponse = await fetch(`${BACKEND_URL}/admin/ai-provider-monitor`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const aiMonitorData = await aiMonitorResponse.json();
+
+    if (aiMonitorResponse.ok && aiMonitorData.success) {
+      aiProviderStatusValue.textContent = aiMonitorData.activeProvider || "-";
+      aiLastCheckedValue.textContent = aiMonitorData.checkedAt
+        ? new Date(aiMonitorData.checkedAt).toLocaleString()
+        : "-";
+
+      const geminiProvider = Array.isArray(aiMonitorData.providers)
+        ? aiMonitorData.providers.find((item) => item.provider === "gemini")
+        : null;
+
+      const groqProvider = Array.isArray(aiMonitorData.providers)
+        ? aiMonitorData.providers.find((item) => item.provider === "groq")
+        : null;
+
+      geminiStatusValue.textContent = geminiProvider?.status || "-";
+      groqStatusValue.textContent = groqProvider?.status || "-";
+
+      aiProvidersTable.innerHTML = "";
+
+      if (Array.isArray(aiMonitorData.providers) && aiMonitorData.providers.length > 0) {
+        aiMonitorData.providers.forEach((provider) => {
+          const tr = document.createElement("tr");
+
+          const statusClass =
+            provider.status === "available"
+              ? "yes"
+              : provider.status === "skipped"
+                ? "warning"
+                : "no";
+
+          tr.innerHTML = `
+            <td>${provider.provider || "-"}</td>
+            <td><span class="pill ${statusClass}">${provider.status || "-"}</span></td>
+            <td>${provider.model || "-"}</td>
+            <td>${provider.configured ? "Yes" : "No"}</td>
+            <td>${provider.skipped ? "Yes" : "No"}</td>
+          `;
+
+          aiProvidersTable.appendChild(tr);
+        });
+      } else {
+        aiProvidersTable.innerHTML = `<tr><td colspan="5">No provider data found.</td></tr>`;
+      }
+    } else {
+      aiProviderStatusValue.textContent = "Error";
+      geminiStatusValue.textContent = "-";
+      groqStatusValue.textContent = "-";
+      aiProvidersTable.innerHTML = `<tr><td colspan="5">${aiMonitorData.error || "Could not load AI monitor."}</td></tr>`;
+    }
+
     rawOutput.textContent = JSON.stringify(
       {
         admin: adminData,
         version: versionData,
         users: usersData,
         premium: premiumData,
+        aiMonitor: typeof aiMonitorData !== "undefined" ? aiMonitorData : null,
         feedback: feedbackData,
       },
       null,
