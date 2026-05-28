@@ -175,6 +175,38 @@
         </div>
       </div>
 
+
+      <div class="panel">
+        <h3>Manual Premium Activation</h3>
+        <p class="muted">
+          Activate Premium manually for a Firebase user by email.
+        </p>
+
+        <div class="admin-form-grid">
+          <label>
+            User Email
+            <input id="manualPremiumEmail" type="email" placeholder="user@example.com" />
+          </label>
+
+          <label>
+            Duration Days
+            <input id="manualPremiumDays" type="number" min="1" max="3650" value="30" />
+          </label>
+
+          <label class="wide">
+            Note
+            <input id="manualPremiumNote" type="text" placeholder="Manual premium activation note" />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button id="activatePremiumBtn" class="btn primary">
+            Activate Premium
+          </button>
+          <p id="manualPremiumStatus" class="status-line">No action yet.</p>
+        </div>
+      </div>
+
       <div class="panel">
         <h3>Premium / Plan Users</h3>
         <div class="table-wrap">

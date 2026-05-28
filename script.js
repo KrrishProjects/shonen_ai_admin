@@ -52,6 +52,11 @@ const freeUsersValue = document.getElementById("freeUsersValue");
 const expiredPremiumValue = document.getElementById("expiredPremiumValue");
 const usersCheckedValue = document.getElementById("usersCheckedValue");
 const premiumUsersTable = document.getElementById("premiumUsersTable");
+const manualPremiumEmail = document.getElementById("manualPremiumEmail");
+const manualPremiumDays = document.getElementById("manualPremiumDays");
+const manualPremiumNote = document.getElementById("manualPremiumNote");
+const activatePremiumBtn = document.getElementById("activatePremiumBtn");
+const manualPremiumStatus = document.getElementById("manualPremiumStatus");
 const rawOutput = document.getElementById("rawOutput");
 
 loginBtn.addEventListener("click", async () => {
@@ -70,6 +75,10 @@ refreshBtn.addEventListener("click", async () => {
   await refreshDashboard();
 });
 
+activatePremiumBtn.addEventListener("click", async () => {
+  await activatePremiumManually();
+});
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authCard.classList.remove("hidden");
@@ -86,6 +95,75 @@ onAuthStateChanged(auth, async (user) => {
 
   await refreshDashboard();
 });
+
+
+async function activatePremiumManually() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login as admin first.");
+    return;
+  }
+
+  const email = manualPremiumEmail.value.trim().toLowerCase();
+  const durationDays = Number(manualPremiumDays.value || 30);
+  const note = manualPremiumNote.value.trim();
+
+  if (!email || !email.includes("@")) {
+    manualPremiumStatus.textContent = "Enter a valid user email.";
+    manualPremiumStatus.className = "status-line danger";
+    return;
+  }
+
+  if (!durationDays || durationDays < 1) {
+    manualPremiumStatus.textContent = "Duration must be at least 1 day.";
+    manualPremiumStatus.className = "status-line danger";
+    return;
+  }
+
+  activatePremiumBtn.disabled = true;
+  activatePremiumBtn.textContent = "Activating...";
+  manualPremiumStatus.textContent = "Sending request to backend...";
+  manualPremiumStatus.className = "status-line";
+
+  try {
+    const token = await user.getIdToken(true);
+
+    const response = await fetch(`${BACKEND_URL}/admin/activate-premium`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        durationDays,
+        note,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Premium activation failed.");
+    }
+
+    manualPremiumStatus.textContent = `Premium activated for ${data.user.email} until ${data.user.premiumUntil}`;
+    manualPremiumStatus.className = "status-line good";
+
+    manualPremiumEmail.value = "";
+    manualPremiumNote.value = "";
+
+    await refreshDashboard();
+  } catch (error) {
+    manualPremiumStatus.textContent = error.message;
+    manualPremiumStatus.className = "status-line danger";
+  } finally {
+    activatePremiumBtn.disabled = false;
+    activatePremiumBtn.textContent = "Activate Premium";
+  }
+}
+
 
 async function refreshDashboard() {
   const user = auth.currentUser;
