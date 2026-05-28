@@ -357,3 +357,18 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+.btn.danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  border: none;
+}
+
+.btn.danger:hover {
+  filter: brightness(1.08);
+}
+
+.btn.danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

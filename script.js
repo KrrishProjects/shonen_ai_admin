@@ -57,6 +57,10 @@ const manualPremiumDays = document.getElementById("manualPremiumDays");
 const manualPremiumNote = document.getElementById("manualPremiumNote");
 const activatePremiumBtn = document.getElementById("activatePremiumBtn");
 const manualPremiumStatus = document.getElementById("manualPremiumStatus");
+const removePremiumEmail = document.getElementById("removePremiumEmail");
+const removePremiumNote = document.getElementById("removePremiumNote");
+const removePremiumBtn = document.getElementById("removePremiumBtn");
+const removePremiumStatus = document.getElementById("removePremiumStatus");
 const rawOutput = document.getElementById("rawOutput");
 
 loginBtn.addEventListener("click", async () => {
@@ -77,6 +81,10 @@ refreshBtn.addEventListener("click", async () => {
 
 activatePremiumBtn.addEventListener("click", async () => {
   await activatePremiumManually();
+});
+
+removePremiumBtn.addEventListener("click", async () => {
+  await removePremiumManually();
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -161,6 +169,75 @@ async function activatePremiumManually() {
   } finally {
     activatePremiumBtn.disabled = false;
     activatePremiumBtn.textContent = "Activate Premium";
+  }
+}
+
+
+
+async function removePremiumManually() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login as admin first.");
+    return;
+  }
+
+  const email = removePremiumEmail.value.trim().toLowerCase();
+  const note = removePremiumNote.value.trim();
+
+  if (!email || !email.includes("@")) {
+    removePremiumStatus.textContent = "Enter a valid user email.";
+    removePremiumStatus.className = "status-line danger";
+    return;
+  }
+
+  const confirmRemove = confirm(
+    `Are you sure you want to remove Premium from ${email}?`
+  );
+
+  if (!confirmRemove) {
+    return;
+  }
+
+  removePremiumBtn.disabled = true;
+  removePremiumBtn.textContent = "Removing...";
+  removePremiumStatus.textContent = "Sending request to backend...";
+  removePremiumStatus.className = "status-line";
+
+  try {
+    const token = await user.getIdToken(true);
+
+    const response = await fetch(`${BACKEND_URL}/admin/remove-premium`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        note,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Premium removal failed.");
+    }
+
+    removePremiumStatus.textContent = `Premium removed from ${data.user.email}. User is now Free.`;
+    removePremiumStatus.className = "status-line good";
+
+    removePremiumEmail.value = "";
+    removePremiumNote.value = "";
+
+    await refreshDashboard();
+  } catch (error) {
+    removePremiumStatus.textContent = error.message;
+    removePremiumStatus.className = "status-line danger";
+  } finally {
+    removePremiumBtn.disabled = false;
+    removePremiumBtn.textContent = "Remove Premium";
   }
 }
 
