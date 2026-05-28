@@ -257,6 +257,53 @@
         </div>
       </div>
 
+
+      <div class="panel">
+        <h3>Feedback Manager</h3>
+
+        <div class="version-grid">
+          <div class="version-card">
+            <span>Total Feedback</span>
+            <strong id="feedbackTotalValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>New</span>
+            <strong id="feedbackNewValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Reviewed</span>
+            <strong id="feedbackReviewedValue">-</strong>
+          </div>
+
+          <div class="version-card">
+            <span>Resolved</span>
+            <strong id="feedbackResolvedValue">-</strong>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>User</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackTable">
+              <tr>
+                <td colspan="6">No feedback loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="panel">
         <h3>Raw Admin Response</h3>
         <pre id="rawOutput">No data yet.</pre>

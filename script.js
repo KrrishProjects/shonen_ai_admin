@@ -62,6 +62,11 @@ const removePremiumNote = document.getElementById("removePremiumNote");
 const removePremiumBtn = document.getElementById("removePremiumBtn");
 const removePremiumStatus = document.getElementById("removePremiumStatus");
 const rawOutput = document.getElementById("rawOutput");
+const feedbackTotalValue = document.getElementById("feedbackTotalValue");
+const feedbackNewValue = document.getElementById("feedbackNewValue");
+const feedbackReviewedValue = document.getElementById("feedbackReviewedValue");
+const feedbackResolvedValue = document.getElementById("feedbackResolvedValue");
+const feedbackTable = document.getElementById("feedbackTable");
 
 loginBtn.addEventListener("click", async () => {
   try {
@@ -242,6 +247,89 @@ async function removePremiumManually() {
 }
 
 
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function updateFeedbackStatus(feedbackId, status) {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login as admin first.");
+    return;
+  }
+
+  try {
+    const token = await user.getIdToken(true);
+
+    const response = await fetch(`${BACKEND_URL}/admin/feedback-status`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        feedbackId,
+        status,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not update feedback status.");
+    }
+
+    await refreshDashboard();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function archiveFeedback(feedbackId) {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login as admin first.");
+    return;
+  }
+
+  const confirmed = confirm("Archive this feedback?");
+  if (!confirmed) return;
+
+  try {
+    const token = await user.getIdToken(true);
+
+    const response = await fetch(`${BACKEND_URL}/admin/archive-feedback`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        feedbackId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not archive feedback.");
+    }
+
+    await refreshDashboard();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+
 async function refreshDashboard() {
   const user = auth.currentUser;
 
@@ -402,12 +490,74 @@ async function refreshDashboard() {
       premiumUsersTable.innerHTML = `<tr><td colspan="6">${premiumData.error || "Could not load premium users."}</td></tr>`;
     }
 
+    const feedbackResponse = await fetch(`${BACKEND_URL}/admin/feedback-overview`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const feedbackData = await feedbackResponse.json();
+
+    if (feedbackResponse.ok && feedbackData.success) {
+      feedbackTotalValue.textContent = feedbackData.total ?? "-";
+      feedbackNewValue.textContent = feedbackData.newCount ?? "-";
+      feedbackReviewedValue.textContent = feedbackData.reviewedCount ?? "-";
+      feedbackResolvedValue.textContent = feedbackData.resolvedCount ?? "-";
+
+      feedbackTable.innerHTML = "";
+
+      const activeFeedback = Array.isArray(feedbackData.feedback)
+        ? feedbackData.feedback.filter((item) => !item.archived)
+        : [];
+
+      if (activeFeedback.length > 0) {
+        activeFeedback.forEach((item) => {
+          const tr = document.createElement("tr");
+
+          const safeMessage = escapeHtml(item.message || "-");
+          const shortMessage =
+            safeMessage.length > 180
+              ? `${safeMessage.slice(0, 180)}...`
+              : safeMessage;
+
+          tr.innerHTML = `
+            <td>${escapeHtml(item.type || "-")}</td>
+            <td>
+              <strong>${escapeHtml(item.email || "-")}</strong><br />
+              <small>${escapeHtml(item.name || "")}</small>
+            </td>
+            <td class="feedback-message">${shortMessage}</td>
+            <td><span class="pill ${item.status === "resolved" ? "yes" : item.status === "reviewed" ? "warning" : "no"}">${escapeHtml(item.status || "new")}</span></td>
+            <td>${escapeHtml(item.createdAt || "-")}</td>
+            <td>
+              <div class="action-row">
+                <button class="mini-btn" onclick="window.updateFeedbackStatus('${item.id}', 'reviewed')">Reviewed</button>
+                <button class="mini-btn good" onclick="window.updateFeedbackStatus('${item.id}', 'resolved')">Resolved</button>
+                <button class="mini-btn danger" onclick="window.archiveFeedback('${item.id}')">Archive</button>
+              </div>
+            </td>
+          `;
+
+          feedbackTable.appendChild(tr);
+        });
+      } else {
+        feedbackTable.innerHTML = `<tr><td colspan="6">No active feedback found.</td></tr>`;
+      }
+    } else {
+      feedbackTotalValue.textContent = "Error";
+      feedbackTable.innerHTML = `<tr><td colspan="6">${feedbackData.error || "Could not load feedback."}</td></tr>`;
+    }
+
+    window.updateFeedbackStatus = updateFeedbackStatus;
+    window.archiveFeedback = archiveFeedback;
+
     rawOutput.textContent = JSON.stringify(
       {
         admin: adminData,
         version: versionData,
         users: usersData,
         premium: premiumData,
+        feedback: feedbackData,
       },
       null,
       2
